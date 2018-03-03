@@ -52,6 +52,7 @@
 <!-- The actual game -->
 <script>
 
+    // Paddle positions
     var firstPos = 5;
     var secondPos = 5;
     
@@ -59,9 +60,15 @@
     var secondScore = 0;
     
     var length = 50;
+    var updateSpeed = 10;
+    var updateTimer = 0;
+    
+    // Ball positions
     var ballPosX = length / 2;
     var ballPosY = 5;
-    var ballDir = 1;
+    
+    var ballDirX = 1;
+    var ballDirY = 0;
     
     function ballGrid()
     {
@@ -86,38 +93,78 @@
         return "" + firstPos + ballGrid() + secondPos;
     }
     
+    function resetBall()
+    {
+        ballPosX = length / 2;
+        ballPosY = 5;
+        ballDirY = 0;
+    }
     
     function update()
-    {
-        ballPosX += ballDir;
+    {   
+        // Move ball and bounce off the top / bottom walls
+        ballPosX += ballDirX;
+        
+        ++updateTimer;
+        if (updateTimer == updateSpeed)
+        {
+            updateTimer = 0;
+            ballPosY += ballDirY;
+            if (ballPosY >= 9 || ballPosY <= 0)
+            {
+                ballDirY = -ballDirY;
+            }
+        }
+        
+        // Handle bouncing off player paddles & score updates
         if (ballPosX == length)
         {
-            if (ballPosY != secondPos)
+            if (Math.abs(ballPosY - secondPos) > 1)
             {
-                ballPosX = length / 2;
+                resetBall();
                 ++firstScore;
             }
             else
             {
-                ballDir = -1;
+                if (secondPos > ballPosY)
+                {
+                    ballDirY++;
+                }
+                else if (secondPos < ballPosY)
+                {
+                    ballDirY--;
+                }
+                
+                ballDirX = -ballDirX;
             }
         }
         else if (ballPosX == 0)
         {
-            if (ballPosY != firstPos)
+            if (Math.abs(ballPosY - firstPos) > 1)
             {
-                ballPosX = length / 2;
+                resetBall();
                 ++secondScore;
             }
             else
             {
-                ballDir = 1;
+                if (firstPos > ballPosY)
+                {
+                    ballDirY++;
+                }
+                else if (firstPos < ballPosY)
+                {
+                    ballDirY--;
+                }
+            
+                ballDirX = -ballDirX;
             }
         }
         
+        // Update 'UI'
         window.history.pushState("", "", "?___" + firstScore + "___" + getGameBoard() + "___" + secondScore + "___");
     }
     
+    // Handle player paddle motion
     document.onkeydown = function (e)
     {
         var event = e || window.event;
@@ -155,6 +202,7 @@
         }
     }
     
+    // Run at 10 FPS
     window.setInterval(update, 100);
     
 </script>
