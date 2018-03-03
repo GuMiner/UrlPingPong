@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    
+    <!-- Bootstrap init -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no" />
+    <link href="./bootstrap-4.0/css/bootstrap.min.css" rel="stylesheet" />
+    
+    <title>URL Pong</title>
+</head>
+
+<!-- Help text -->
+<body>
+    <div class="card">
+        <div class="card-header">
+            <h2>URL Pong</h2>
+        </div>
+        <div class="card-body">
+        <h4> About </h4>
+        <p>
+            This is a simple ping-pong game played in the URL field of your web browser. 
+            <br />
+            <br />
+            The ball moves back and forth (in the URL field) and up and down (represented by the numerical value). <br />
+            To play the game, move the controls so that your paddle is within 1 of the ball. <br />
+            If your paddles is further away than that, your opponent gets a point. <br />
+            If your paddle is equal to the ball's number, the ball bounces "flatly". <br />
+            If your paddle is off by one of the ball's number, the ball bounces "at an angle". <br />
+            Both the ball and the paddles are limited to 0-9, so the ball can bounce back and forth from the "floor" (0) and "ceiling" (9) between players. <br />
+        </p>
+        <h4> Game Grid </h4>
+            For the given sample game grid (___A__B_______X________C__D___):
+            <ul>
+                <li> <b>A:</b> Player 1's score. </li>
+                <li> <b>D:</b> Player 2's score. </li>
+                <li> <b>B:</b> Player 1's paddle. </li>
+                <li> <b>C:</b> Player 2's paddle. </li>
+                <li> <b>X:</b> The ping-pong ball. </li>
+            </ul>
+        <h4> Controls </h4>
+            <ul>
+                <li> <b>Player 1:</b> Q / A keys </li>
+                <li> <b>Player 2:</b> Up / Down keys </li>
+            </ul>
+        </div>
+    </div>
+</body>
+
+<script src="./bootstrap-4.0/js/bootstrap.min.js"></script>
+
+<!-- The actual game -->
+<script>
+
+    var firstPos = 5;
+    var secondPos = 5;
+    
+    var firstScore = 0;
+    var secondScore = 0;
+    
+    var length = 50;
+    var ballPosX = length / 2;
+    var ballPosY = 5;
+    var ballDir = 1;
+    
+    function ballGrid()
+    {
+        var grid = "";
+        for (var i = 0; i < length; i++)
+        {
+            if (i != ballPosX)
+            {
+                grid += "_";
+            }
+            else
+            {
+                grid += ballPosY;
+            }
+        }
+        
+        return grid;
+    }
+    
+    function getGameBoard()
+    {
+        return "" + firstPos + ballGrid() + secondPos;
+    }
+    
+    
+    function update()
+    {
+        ballPosX += ballDir;
+        if (ballPosX == length)
+        {
+            if (ballPosY != secondPos)
+            {
+                ballPosX = length / 2;
+                ++firstScore;
+            }
+            else
+            {
+                ballDir = -1;
+            }
+        }
+        else if (ballPosX == 0)
+        {
+            if (ballPosY != firstPos)
+            {
+                ballPosX = length / 2;
+                ++secondScore;
+            }
+            else
+            {
+                ballDir = 1;
+            }
+        }
+        
+        window.history.pushState("", "", "?___" + firstScore + "___" + getGameBoard() + "___" + secondScore + "___");
+    }
+    
+    document.onkeydown = function (e)
+    {
+        var event = e || window.event;
+        if (event.keyCode == 81) // Q
+        {
+            firstPos++;
+            if (firstPos > 9)
+            {
+                firstPos = 9
+            }
+        }
+        else if (event.keyCode == 65) // A
+        {
+            firstPos--;
+            if (firstPos < 0)
+            {
+                firstPos = 0;
+            }
+        }
+        else if (event.keyCode == 38) // Up
+        {
+            secondPos++;
+            if (secondPos > 9)
+            {
+                secondPos = 9
+            }
+        }
+        else if (event.keyCode == 40) // Down
+        {
+            secondPos--;
+            if (secondPos < 0)
+            {
+                secondPos = 0;
+            }
+        }
+    }
+    
+    window.setInterval(update, 100);
+    
+</script>
